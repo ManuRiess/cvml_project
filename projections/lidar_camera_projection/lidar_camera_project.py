@@ -140,7 +140,7 @@ def render_lidar_on_image2(pts_velo, img, calib, img_width, img_height):
         # color = cmap[int(min_depth / depth), :] #maps min(depth) to cmap[255} and max(0)
         cv2.circle(img, (int(np.round(imgfov_pc_pixel[0, i])),
                          int(np.round(imgfov_pc_pixel[1, i]))),
-                   2, color=tuple(color), thickness=-1)
+                   2, color=tuple(color), thickness=3)
     plt.imshow(img)
     plt.yticks([])
     plt.xticks([])
@@ -169,7 +169,7 @@ def color_pc(PointCloud):
 if __name__ == '__main__':
     # Load image, calibration file, label bbox
     rgb = cv2.cvtColor(cv2.imread(os.path.join('data/000114_image.png')), cv2.COLOR_BGR2RGB)
-    rgb2 = cv2.cvtColor(cv2.imread(os.path.join('./../../../data/CL_Sim_Images/1920x1200/frame0000.jpg')), cv2.COLOR_BGR2RGB)
+    rgb2 = cv2.cvtColor(cv2.imread(os.path.join('./../../../data/CL_Sim_Images/1920x1200/frame0086.jpg')), cv2.COLOR_BGR2RGB)
     img_height, img_width, img_channel = rgb.shape
     img_height2, img_width2, img_channel2 = rgb2.shape
 
@@ -182,7 +182,7 @@ if __name__ == '__main__':
 
     # Load Lidar PC
     pc_velo = load_velo_scan('data/000114.bin')[:, :3]
-    pc_velo2 = load_velo_scan2('./../../../data/CL_Sim_PCDs/CAM_Lidar_Sim_PCDs/1614382306.913780111.pcd')#[:, :3]
+    pc_velo2 = load_velo_scan2('./../../../data/CL_Sim_PCDs/CAM_Lidar_Sim_PCDs/1614382323.116151381.pcd')#[:, :3]
     # pc_velo2 = color_pc(pc_velo2)
     # render_image_with_boxes(rgb, labels, calib)
     # render_lidar_with_boxes(pc_velo, labels, calib, img_width=img_width, img_height=img_height)
