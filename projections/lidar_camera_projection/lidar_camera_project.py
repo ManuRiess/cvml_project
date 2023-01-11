@@ -1,7 +1,7 @@
 import os
 
 import matplotlib.pyplot as plt
-import open3d
+import open3d as o3d
 
 from utils import *
 
@@ -128,6 +128,7 @@ def render_lidar_on_image2(pts_velo, img, calib, img_width, img_height):
     imgfov_pc_velo = pts_velo[inds, :]
     imgfov_pc_velo = np.hstack((imgfov_pc_velo, np.ones((imgfov_pc_velo.shape[0], 1))))
     imgfov_pc_cam2 = proj_velo2cam2 @ imgfov_pc_velo.transpose()
+    imgfov_pc_velo_colors = color_pc(imgfov_pc_velo) * 255
 
     cmap = plt.cm.get_cmap('hsv', 256)
     cmap = np.array([cmap(i) for i in range(256)])[:, :3] * 255
@@ -135,7 +136,8 @@ def render_lidar_on_image2(pts_velo, img, calib, img_width, img_height):
     min_depth = min(imgfov_pc_cam2[2, :])
     for i in range(imgfov_pc_pixel.shape[1]):
         depth = imgfov_pc_cam2[2, i]
-        color = cmap[int(min_depth / depth), :] #maps min(depth) to cmap[255} and max(0)
+        color = imgfov_pc_velo_colors[:3, i]
+        # color = cmap[int(min_depth / depth), :] #maps min(depth) to cmap[255} and max(0)
         cv2.circle(img, (int(np.round(imgfov_pc_pixel[0, i])),
                          int(np.round(imgfov_pc_pixel[1, i]))),
                    2, color=tuple(color), thickness=-1)
@@ -144,6 +146,24 @@ def render_lidar_on_image2(pts_velo, img, calib, img_width, img_height):
     plt.xticks([])
     plt.show()
     return img
+
+
+def color_pc(PointCloud):
+    # Export points to np:
+    # points = np.asarray(PointCloud.points)
+    points = PointCloud
+    # coloring via z_component: (range:[0,1])
+    z_points = points[:, 2]
+    z_diff = z_points.max() - z_points.min()
+    r_col = 1 - abs(((z_points - z_points.min()) / z_diff - 0.5) * 2)
+    g_col = ((z_points - z_points.min()) / z_diff - 0.5) * 2  # highest point is most green
+    b_col = ((z_points - z_points.min() - z_diff) * (-1) / z_diff - 0.5) * 2
+    # colors = np.concatenate([[r_col], [g_col]], axis=1)
+    colors = [r_col, g_col, b_col]
+    np_colors = np.asarray(colors)
+    # PointCloud.colors = o3d.utility.Vector3dVector(np_colors.transpose())
+    # return PointCloud
+    return np_colors
 
 
 if __name__ == '__main__':
@@ -163,7 +183,7 @@ if __name__ == '__main__':
     # Load Lidar PC
     pc_velo = load_velo_scan('data/000114.bin')[:, :3]
     pc_velo2 = load_velo_scan2('./../../../data/CL_Sim_PCDs/CAM_Lidar_Sim_PCDs/1614382306.913780111.pcd')#[:, :3]
-
+    # pc_velo2 = color_pc(pc_velo2)
     # render_image_with_boxes(rgb, labels, calib)
     # render_lidar_with_boxes(pc_velo, labels, calib, img_width=img_width, img_height=img_height)
     # render_lidar_on_image(pc_velo, rgb, calib, img_width, img_height)
