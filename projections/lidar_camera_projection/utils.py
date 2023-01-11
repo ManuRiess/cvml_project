@@ -1,6 +1,7 @@
 import cv2
 import mayavi.mlab as mlab
 import numpy as np
+import open3d
 
 
 class Box3D(object):
@@ -150,6 +151,12 @@ def load_image(img_filename):
 def load_velo_scan(velo_filename):
     scan = np.fromfile(velo_filename, dtype=np.float32)
     scan = scan.reshape((-1, 4))
+    return scan
+
+
+def load_velo_scan2(velo_filename):
+    pc = open3d.cpu.pybind.io.read_point_cloud(velo_filename)
+    scan = np.asarray(pc.points)
     return scan
 
 
